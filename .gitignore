@@ -20,6 +20,8 @@ target/
 .settings
 .springBeans
 .sts4-cache
+.allure/*
+.idea/*
 
 ### NetBeans ###
 /nbproject/private/
