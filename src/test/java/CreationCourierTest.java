@@ -1,4 +1,4 @@
-import data_for_test.DataForCreationCourier;
+import datafortest.DataForCreationCourier;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;

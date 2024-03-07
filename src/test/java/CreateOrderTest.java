@@ -1,7 +1,8 @@
-import data_for_test.DataForCreationOrder;
+import datafortest.DataForCreationOrder;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +15,7 @@ import static org.hamcrest.Matchers.notNullValue;
 public class CreateOrderTest extends StepMethods {
     private final String[] selectedColor;
     private final int expectedStatusCode;
+    String orderTrack = "";
 
     public CreateOrderTest(String[] selectedColor, int expectedStatusCode) {
         this.selectedColor = selectedColor;
@@ -40,6 +42,12 @@ public class CreateOrderTest extends StepMethods {
     public void creationOrder() {
         DataForCreationOrder testsData = new DataForCreationOrder("Тест", "Тест", "Тестовая, 12", "44", "79524657777", 2, "2024-03-08", "тест", selectedColor);
         Response response = sendRequestOrderCreation(testsData);
+        orderTrack = getOrderTrack(response);
         response.then().assertThat().body("track", notNullValue()).statusCode(expectedStatusCode);
+    }
+
+    @After
+    public void afterTest() {
+        sendPutRequestToCancelOrder(orderTrack);
     }
 }

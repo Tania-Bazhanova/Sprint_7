@@ -27,8 +27,7 @@ public class DeleteCourierTest extends StepMethods {
         sendPostRequestCreationCourier(jsonCourierData);
         sendPostRequestForCouriersLogin(jsonCourierLoginData);
         Response deleteResponse = given().delete("/api/v1/courier/");
-        //проверка осуществляется на 404 ошибку и текст Not Found, т.к. в сваггере закладывается ручка с id, а мы дергаем без него, а это, по сути, уже другая ручка
-        deleteResponse.then().assertThat().body("message",  equalTo("Not Found.")).statusCode(404);
+        deleteResponse.then().assertThat().body("message",  equalTo("Недостаточно данных для удаления курьера")).statusCode(400);
     }
 
     @Test

@@ -1,15 +1,16 @@
-import data_for_test.DataForCreationOrder;
+import datafortest.DataForCreationOrder;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.Before;
 import org.junit.Test;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class GetOrderByTrackTest extends StepMethods {
+    String orderTrack = "";
+
     @Before
     public void setUpUrl() {
         RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru/";
@@ -21,13 +22,9 @@ public class GetOrderByTrackTest extends StepMethods {
         DataForCreationOrder orderForData = new DataForCreationOrder("Тест", "Тест", "Тестовая, 12", "44", "79524657777", 2, "2024-03-08", "тест", new String[]{"", "GREY"});
 
         Response orderCreationResponse = sendRequestOrderCreation(orderForData);
-        String orderTrack = getOrderTrack(orderCreationResponse);
+        orderTrack = getOrderTrack(orderCreationResponse);
 
-        Response responseOrderByTrack =
-                given()
-                        .queryParam("t", orderTrack)
-                        .when()
-                        .get("/api/v1/orders/track");
+        Response responseOrderByTrack = sendGetRequestForOrderByTrack(orderTrack);
         responseOrderByTrack.then().assertThat().body("order.id", notNullValue()).statusCode(200);
     }
 
@@ -36,13 +33,10 @@ public class GetOrderByTrackTest extends StepMethods {
     public void getOrderWithoutTrack() {
         DataForCreationOrder orderForData = new DataForCreationOrder("Тест", "Тест", "Тестовая, 12", "44", "79524657777", 2, "2024-03-08", "тест", new String[]{"", "GREY"});
 
-        sendRequestOrderCreation(orderForData);
+        Response orderCreationResponse = sendRequestOrderCreation(orderForData);
+        orderTrack = getOrderTrack(orderCreationResponse);
 
-        Response responseOrderWithoutTrack =
-                given()
-                        .queryParam("t", "")
-                        .when()
-                        .get("/api/v1/orders/track");
+        Response responseOrderWithoutTrack = sendGetRequestForOrderByTrack("");
         responseOrderWithoutTrack.then().assertThat().body("message", equalTo("Недостаточно данных для поиска")).statusCode(400);
     }
 
@@ -51,13 +45,14 @@ public class GetOrderByTrackTest extends StepMethods {
     public void getOrderWithIncorrectTrack() {
         DataForCreationOrder orderForData = new DataForCreationOrder("Тест", "Тест", "Тестовая, 12", "44", "79524657777", 2, "2024-03-08", "тест", new String[]{"", "GREY"});
 
-        sendRequestOrderCreation(orderForData);
+        Response orderCreationResponse = sendRequestOrderCreation(orderForData);
+        orderTrack = getOrderTrack(orderCreationResponse);
 
-        Response responseOrderWithIncorrectTrack =
-                given()
-                        .queryParam("t", "11889944")
-                        .when()
-                        .get("/api/v1/orders/track");
+        Response responseOrderWithIncorrectTrack = sendGetRequestForOrderByTrack("11889944");
         responseOrderWithIncorrectTrack.then().assertThat().body("message", equalTo("Заказ не найден")).statusCode(404);
+    }
+
+    public void afterTest() {
+        sendPutRequestToCancelOrder(orderTrack);
     }
 }

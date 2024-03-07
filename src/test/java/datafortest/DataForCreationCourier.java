@@ -1,4 +1,4 @@
-package data_for_test;
+package datafortest;
 
 public class DataForCreationCourier {
     private String login;
